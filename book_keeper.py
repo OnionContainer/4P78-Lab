@@ -7,7 +7,8 @@ class BookKeeper:
     def __init__(self, trial_number):
         """初始化类，自动创建日志文件名并打开文件供写入"""
         self.trial_number = trial_number  # 试验编号
-        self.log_file_name = f"trial_{trial_number}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"  # 文件名
+        os.makedirs("log", exist_ok=True)
+        self.log_file_name = f"log/trial_{trial_number}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"  # 文件名
         self.log_file = open(self.log_file_name, "w")  # 打开文件用于写入
         print(f"Log file created: {self.log_file_name}")  # 提示文件的创建
 
