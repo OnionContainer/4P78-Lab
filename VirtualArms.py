@@ -10,6 +10,10 @@ from ArmMission import ArmMission, RegRotateMission, SegmentMovementMission
 
 class VirtualArms:
 
+    def sync_real(self, m0:int, m1:int):
+        self.__motorDegrees[0] = m0
+        self.__motorDegrees[1] = m1
+
     def get_motor_interval(self, motor:int)->sympy.Interval:
         return self.__motorInterval[motor]
 
@@ -39,7 +43,7 @@ class VirtualArms:
             sympy.Interval(-135, 180)
         ]
         self.__barLength: List[float] = [140.0, 160.0]
-        self.__motorSpeed: List[float] = [60, 60]
+        self.__motorSpeed: List[float] = [30, 30]
         self.__noCrossPoints: List[Point] = []  # those are no crossing points
         self.__lastUpdateTime: datetime = datetime.now()
 
@@ -80,11 +84,11 @@ class VirtualArms:
         else:
             raise ValueError("Invalid node index. Must be 0, 1, or 2.")
 
-    def move_to_with_segments(self):
+    def move_to_with_segments(self, x:float, y:float):
         self.__updateFunction.append(
             SegmentMovementMission(
                 self,
-                (80,80)
+                (x,y)
             )
         )
 
@@ -179,17 +183,17 @@ class VirtualArms:
 
         pass
 
-    def move_to_good(self, x=0.0, y=0.0):
+    def move_to_good(self, x=0.0, y=0.0)->bool:
 
         from RotatePlan import RotatePlan
 
         optimized_plan:(RotatePlan, float) = VirtualArms.get_move_to_optimized_plan(self,x,y)
         if optimized_plan is None or optimized_plan[0] is None:
             print("No valid plan found!")
-            return
+            return False
         self.rotate(optimized_plan[0][0], 0)
         self.rotate(optimized_plan[0][1], 1)
-        return
+        return True
 
         """
         I guess move_to_good also rest in piece?

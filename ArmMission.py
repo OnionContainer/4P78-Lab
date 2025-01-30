@@ -1,6 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 import sympy
+from sympy import Point2D, false
 
 config = {
     "segSize": 5.0
@@ -75,6 +76,42 @@ class SegmentMovementMission(ArmMission):
         self.__arm: VirtualArms = arm
         self.__target = target
         self.__current_target = None
+        self.__bypass_points = []
+        # AI code starts[field 1]
+
+        # Convert current position to Point2D object
+        current_position = Point2D(self.__arm.solve_node_pos(2))  # Assume self.__arm.get_position() returns (x, y)
+
+        # Convert target position to Point2D object
+        target_position = Point2D(self.__target)  # Assume self.__target is the target position (x, y)
+
+        # Define the segment size (interval between points)
+        seg_size = config["segSize"]
+
+        # Calculate the distance between current and target positions
+        distance = current_position.distance(target_position)
+
+        # Calculate the normalized direction vector
+        if distance == 0:  # If no distance, set the normalized vector to zero
+            normalized_vector = Point2D(0, 0)
+        else:
+            normalized_vector = (target_position - current_position) / distance
+
+        # Calculate the number of bypass segments
+        num_segments = int(distance // seg_size)
+
+        # Generate the intermediate bypass points
+        for i in range(1, num_segments):
+            point = current_position + normalized_vector * seg_size * i  # Generate new points along the path
+            self.__bypass_points.append((float(point.x), float(point.y)))  # Append points as (x, y) tuples
+
+        # Append the target position to the list
+        self.__bypass_points.append((float(target_position.x), float(target_position.y)))  # Ensure target included
+
+        # AI code ends[field 1]
+
+
+
 
 
     def get_focused_motor(self):
@@ -86,19 +123,30 @@ class SegmentMovementMission(ArmMission):
     def print_mission(self):
         pass
 
-    def execute(self, delta_time: float):
+    def execute(self, delta_time: float)->bool:
         if self.__arm.get_current_mission() is not self:
             raise Exception("What is going on with mission?")
 
         # self.__arm.rotate(random.choice([-1,1])* random.randint(30,90), random.randint(0,1))
 
-        x = random.uniform(30,100) * random.choice([-1,1])
-        y = random.uniform(30, 100) * random.choice([-1, 1])
-        # x,y = random.uniform(0,100),random.uniform(-100,100)
-        self.__arm.a_random_callback(x,y)
-        self.__arm.move_to_good(
-            x,y
-        )
+        # x = random.uniform(30,100) * random.choice([-1,1])
+        # y = random.uniform(30, 100) * random.choice([-1, 1])
+        # # x,y = random.uniform(0,100),random.uniform(-100,100)
+        # self.__arm.a_random_callback(x,y)
+        # self.__arm.move_to_good(
+        #     x,y
+        # )
+
+        if self.__bypass_points:
+            p = self.__bypass_points.pop(0)
+            self.__arm.a_random_callback(p[0],p[1])
+            is_target_valid = self.__arm.move_to_good(p[0],p[1])
+            if not is_target_valid:
+                self.__bypass_points = []
+                return True
+            return False
+
+        return True
 
         # new_mission = RegRotateMission(
         #     spd=45,

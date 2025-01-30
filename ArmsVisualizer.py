@@ -30,10 +30,12 @@ class CoordinateDrawer:
             "home": self.cmd_home,
             "quit": self.cmd_quit,
             "seg": self.seg_to,
+            "sync": self.cmd_sync,
         }
 
         self.__earl = Earl()
         self.__earl.prep()
+
 
 
     def execute_current_command(self):
@@ -58,12 +60,25 @@ class CoordinateDrawer:
         except ValueError as e:
             print("Type parsing failed. Watch your args.\n", e, "\n---···---")
 
+    def cmd_pre(self, index:str = "0"):
+        try:
+            i = int(index)
+        except ValueError as e:
+            print("Command parsing problem")
+            print(e)
+            return
+        self.__earl.preset_turn(i)
+
+    def cmd_sync(self):
+        self.__targetArm.sync_real(0,0)
+
     def cmd_quit(self):
         self.__earl.quit()
         self.window.quit()
 
     def cmd_home(self):
         self.__earl.home()
+
         pass
 
     def cmd_rotate_real(self, power="64", degree="5", motor="0", weak="0"):
@@ -81,17 +96,16 @@ class CoordinateDrawer:
 
         pass
 
-    def seg_to(self, in_x:str = "10.0", in_y:str = "10.0", interval:float = "5"):
+    def seg_to(self, in_x:str = "10.0", in_y:str = "10.0"):
         try:
             x = float(in_x)
             y = float(in_y)
-            i = float(interval)
         except ValueError as e:
             print("Command parsing problem")
             print(e)
             return
 
-        self.__targetArm.move_to_with_segments()
+        self.__targetArm.move_to_with_segments(x,y)
         pass
 
     def cmd_to(self, in_x:str = "10.0", in_y:str = "10.0"):
@@ -188,9 +202,10 @@ class CoordinateDrawer:
         # neww_point = (float(new_point[0]), float(new_point[1]))
         # self.sign_points([neww_point])
         # self.sign_line((0.0, 0.0), (neww_point[0], neww_point[1]))
-        self.window.clear_canvas()
+
         if self.__targetArm is not None:
             self.__targetArm.update()
+            self.window.clear_canvas()
             self.sign_target_arm()
         self.execute_current_command()
         # Schedule the next update

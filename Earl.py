@@ -7,6 +7,7 @@ import nxt.locator
 import nxt.motor
 import nxt.sensor
 import nxt.sensor.generic
+from sympy.strategies.core import switch
 
 from book_keeper import BookKeeper
 
@@ -80,6 +81,17 @@ class Earl:
         self.__motor_elbow.turn(15,360,stop_turn=self.bumper(self.__touch_elbow))
         # self.cleanup()
 
+    def preset_turn(self, index:int):
+        if not self.__init_success:
+            print("Earl not initialized")
+            return
+        print(f"running preset {index}")
+
+        if index == 0:
+            self.turn(64, 5, 0)
+
+        pass
+
     def quit(self):
         if not self.__init_success:
             print("Earl not initialized")
@@ -88,6 +100,8 @@ class Earl:
         self.cleanup()
 
     def turn(self, power:int, angle:int, motor:int, weak = False):
+
+        print(f"Earl: turn {angle} with {power} on {motor} motor using {weak} weak mode")
 
         if not self.__init_success:
             print("Earl not initialized")
@@ -102,13 +116,16 @@ class Earl:
 
         sleep(1)
 
+        self.__motor_shoulder.weak_turn(80, 10)
+
         if motor == 0:
             if weak:
+                print("weak turn shoulder")
                 self.__motor_shoulder.weak_turn(
                     power,
                     angle
                 )
-                return
+            print("turn shoulder")
             self.__motor_shoulder.turn(
                 power,
                 angle,
@@ -116,17 +133,19 @@ class Earl:
             )
         else:
             if weak:
+                print("weak turn elbow")
                 self.__motor_elbow.weak_turn(
                     power,
                     angle
                 )
+            print("turn elbow")
             self.__motor_elbow.turn(
                 power,
 
                 angle,
                 stop_turn=self.bumper(self.__touch_elbow)
             )
-
+        sleep(1)
         #self.__book_keeper.print_log(
         #    f"state after turning: motor0 on {self.__motor_shoulder.get_tacho()}, motor1 on {self.__motor_elbow.get_tacho()}")
 
