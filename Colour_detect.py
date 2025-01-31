@@ -1,3 +1,5 @@
+import random
+
 import cv2
 import numpy as np
 
@@ -14,8 +16,7 @@ webcam_video = cv2.VideoCapture(0)
 
 
 
-
-while True:
+def update_color(callback):
     success, video = webcam_video.read()
 
     img = cv2.cvtColor(video, cv2.COLOR_BGR2HSV)
@@ -42,16 +43,20 @@ while True:
     for y in range (0,width, cells_x):
         cv2.line(video, (0,y), (width,y), (0,0,0), 1)
 
+    count_colors = [0,0,0]
+
     for contour in contoursOrange:
         if cv2.contourArea(contour) > 500:
+            #configure the condition
             x, y, w, h = cv2.boundingRect(contour)
            
             # Adjust the coordinates to center (0, 0) in the center of the image
             adjusted_x = x - width // 2
             adjusted_y = y - height // 2
             
-            cv2.putText(video, "Orange", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-            cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            # cv2.putText(video, "Orange", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+            # cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            count_colors[0] += 1
 
     for contour in contoursGreen:
         if cv2.contourArea(contour) > 500:
@@ -61,8 +66,9 @@ while True:
             adjusted_x = x - width // 2
             adjusted_y = y - height // 2
 
-            cv2.putText(video, "Green", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 128, 0), 2)
-            cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 128, 0), 2)
+            # cv2.putText(video, "Green", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 128, 0), 2)
+            # cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 128, 0), 2)
+            count_colors[1] += 1
 
     for contour in contoursGrey:
         if cv2.contourArea(contour) > 500:
@@ -72,13 +78,27 @@ while True:
             adjusted_x = x - width // 2
             adjusted_y = y - height // 2
 
-            cv2.putText(video, "Grey", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (169, 169, 169), 2)
-            cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (169, 169, 169), 2)
+            #get result
 
-    cv2.imshow("Color Labels", video)
+            # cv2.putText(video, "Grey", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (169, 169, 169), 2)
+            # cv2.putText(video, f"x: {adjusted_x} y: {adjusted_y}", (x, y - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (169, 169, 169), 2)
+            count_colors[2] += 1
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    callback(random.randint(100000000,999999999))
+    for i in range(3):
+        if count_colors[i] >= 1:
+            callback(i)
 
-webcam_video.release()
-cv2.destroyAllWindows()
+
+    # cv2.imshow("Color Labels", video)
+    # cv2.waitKey(1)
+    print(f"color detect updating: {count_colors}")
+
+
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
+
+def quit_color():
+    webcam_video.release()
+    cv2.destroyAllWindows()
+

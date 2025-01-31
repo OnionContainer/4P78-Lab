@@ -7,6 +7,10 @@ from Earl import Earl
 from MyTk import MyTk
 import sympy
 
+import Colour_detect
+
+
+
 rot_plans = [
     [
         (-250,1),
@@ -69,7 +73,7 @@ class CoordinateDrawer:
         }
 
 
-        self.color_result = "g"
+        self.color_result = 0
         self.shape_result = "t"
 
         self.__earl = Earl()
@@ -296,6 +300,20 @@ class CoordinateDrawer:
         self.window.sign_line(p2, p3)
         self.window.sign_points([p1,p2,p3])
 
+    def color_callback(self):
+        """
+
+        :param i: reported color index
+        0 means orange
+        1 means green
+        2 means gray
+        :return:
+        """
+        def to_call(i):
+            self.color_result = i
+
+        return to_call
+
     def dynamic_update(self):
         """Simulate dynamically adding new points."""
         import random
@@ -304,6 +322,7 @@ class CoordinateDrawer:
         # self.sign_points([neww_point])
         # self.sign_line((0.0, 0.0), (neww_point[0], neww_point[1]))
 
+        Colour_detect.update_color(self.color_callback())
 
         self.window.clear_canvas("communication")
         self.window.sign_point(
