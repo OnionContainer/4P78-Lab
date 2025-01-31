@@ -7,6 +7,28 @@ from Earl import Earl
 from MyTk import MyTk
 import sympy
 
+rot_plans = [
+    [
+        (220,1),
+        (155,0),
+        (-175,1),
+        (90,1),
+        (-15,0),
+        (-100,2)#power swing!
+    ],
+    [
+        (155,0),
+        (200,2)#power swing!
+    ],
+    [
+        (220,1),
+        (125,0),
+        (-180,2)#power swing!
+    ]
+
+
+]
+
 class CoordinateDrawer:
     def __init__(self):
         # Initialize the main Tkinter window
@@ -33,6 +55,8 @@ class CoordinateDrawer:
             "sync": self.cmd_sync,
             "esc": self.cmd_esc,
             "rotrs": self.cmd_rotate_real_seg,
+            "plan": self.cmd_series_rotr,
+
         }
 
         self.__earl = Earl()
@@ -61,6 +85,40 @@ class CoordinateDrawer:
             print("Turning non existing motor?\n", "\n---···---")
         except ValueError as e:
             print("Type parsing failed. Watch your args.\n", e, "\n---···---")
+
+    def cmd_series_rotr(self, plan_index="0"):
+        try:
+            i = int(plan_index)
+        except ValueError as e:
+            print("Command parsing problem")
+            print(e)
+            return
+
+        for plan in rot_plans:
+            self.cmd_goal(*plan[i])
+
+
+    def cmd_goal(self, deg = "0", motor = "0"):
+        # self.__targetArm.goal(int(deg), int(motor))
+        try:
+            d = int(deg)
+            m = int(motor)
+        except ValueError as e:
+            print("Command parsing problem")
+            print(e)
+            return
+
+        current = self.__earl.get_motor_degree(m)
+
+        # self.__earl.segment_turn(40, d-current, m, False)
+
+        if m == 2:#power swing!
+            self.cmd_rotate_real("80", deg, "1","0")
+            self.cmd_home()
+            return
+
+        self.__earl.segment_turn(40, d, m, False)
+        pass
 
     def cmd_esc(self):
         self.__earl.excape()

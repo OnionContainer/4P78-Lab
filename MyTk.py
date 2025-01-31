@@ -23,7 +23,7 @@ class MyTk(tk.Tk):
 
         self.canvas.create_line(self.width // 2, 0, self.width // 2, self.height, fill="black")  # Y-axis
         self.canvas.create_line(0, self.height // 2, self.width, self.height // 2, fill="black")  #
-
+        self.sign_point((-105,115), "origin", "object location", (0,30))
         # # 扇形测试，从 -30° 开始
         # x, y = 200, 200  # 圆心坐标
         # r = 100  # 半径

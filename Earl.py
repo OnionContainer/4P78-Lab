@@ -21,7 +21,10 @@ class Earl:
         self.__turning_start_angle = self.__motor_shoulder.get_tacho().rotation_count
         pass
 
-    def get_motor_degree(self, motor:int)->float:
+    def get_motor_degree(self, motor:int)->int:
+        if not self.__init_success:
+            print("Earl not initialized")
+            return -1
         if motor == 0:
             return self.__motor_shoulder.get_tacho().rotation_count
         else:
@@ -177,8 +180,6 @@ class Earl:
             else:
                 print("segment turn occur")
                 continue
-
-
 
     def turn(self, power:int, angle:int, motor:int, weak = False):
 

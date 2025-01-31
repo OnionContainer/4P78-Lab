@@ -37,12 +37,12 @@ class VirtualArms:
         self.a_random_callback = None
 
         self.__root: Point = Point()
-        self.__motorDegrees: List[float] = [-20.0, -100.0]
+        self.__motorDegrees: List[float] = [-10.0, -115.0]
         self.__motorInterval: List[sympy.Interval] = [
-            sympy.Interval(-90, 180),
-            sympy.Interval(-135, 180)
+            sympy.Interval(-10, 160),
+            sympy.Interval(-115, 110)
         ]
-        self.__barLength: List[float] = [140.0, 160.0]
+        self.__barLength: List[float] = [105, 133]
         self.__motorSpeed: List[float] = [30, 30]
         self.__noCrossPoints: List[Point] = []  # those are no crossing points
         self.__lastUpdateTime: datetime = datetime.now()
