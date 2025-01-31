@@ -59,17 +59,29 @@ class Earl:
         g = get_deg
         tar = tar_dis
 
+        print("bumpy test start")
+
         def bumpy():
             while not sensor.get_sample():
+                print("-", end="")
                 if time.time() - t > 2:
                     print("bumpy return True due to timeout")
                     return True
                 if abs(g() - d) > tar:
                     print("bumpy return True due to angle reached")
                     return True
-                pass
             return True
         return bumpy
+
+    @staticmethod
+    def fummer(sensor):
+
+
+        def fummy():
+            while not sensor.get_sample():
+                pass
+            return True
+        return fummy
 
     def prep(self):
 
@@ -103,11 +115,16 @@ class Earl:
         if not self.__init_success:
             print("Earl not initialized")
             return
-        self.__motor_shoulder.turn(-15,360,stop_turn=self.bumper(self.__touch_shoulder))
-        self.__motor_elbow.turn(15,360,stop_turn=self.bumper(self.__touch_elbow))
+        self.__motor_shoulder.turn(-15,360,stop_turn=Earl.fummer(
+            self.__touch_shoulder
+        ))
+        self.__motor_elbow.turn(15,360,stop_turn=Earl.fummer(self.__touch_elbow))
         self.__motor_shoulder.reset_position(False)
         self.__motor_elbow.reset_position(False)
         self.print_status()
+        sleep(1)
+        self.__motor_shoulder.idle()
+        self.__motor_elbow.idle()
         # self.cleanup()
 
     def preset_turn(self, index:int):
@@ -125,9 +142,9 @@ class Earl:
         print("escape from zero")
         self.print_status()
         sleep(1)
-        self.__motor_shoulder.weak_turn(80,1)
+        self.__motor_shoulder.weak_turn(100,5)
         sleep(1)
-        self.__motor_elbow.weak_turn(-80,1)
+        self.__motor_elbow.weak_turn(-100,5)
         sleep(1)
         self.print_status()
 
@@ -139,7 +156,7 @@ class Earl:
         self.cleanup()
 
     def print_status(self):
-        print(f"shoulder: {self.__motor_shoulder.get_tacho()} elbow: {self.__motor_elbow.get_tacho()}")
+        print(f"shoulder: {self.__motor_shoulder.get_tacho().rotation_count} elbow: {self.__motor_elbow.get_tacho().rotation_count}")
         
     def segment_turn(self, power:int, angle:int, motor:int, weak = False):
         target_deg = self.get_motor_degree(motor) + angle
@@ -149,7 +166,7 @@ class Earl:
             #this should be some validated good parameter
             #angle is +-1 unchanged. adjust weak and power
 
-            sleep(1)
+            # sleep(1)
             deg = self.get_motor_degree(motor)
             if angle > 0 and deg >= target_deg:
                 print("segment turns end")
@@ -166,7 +183,8 @@ class Earl:
     def turn(self, power:int, angle:int, motor:int, weak = False):
 
         print(f"Earl: turn {angle} with {power} on {motor} motor using {weak} weak mode")
-        
+        self.__motor_shoulder.idle()
+        self.__motor_elbow.idle()
 
         if not self.__init_success:
             print("Earl not initialized")
@@ -193,7 +211,7 @@ class Earl:
         #self.__book_keeper.print_log(log)
 
         self.print_status()
-        sleep(1)
+        sleep(0.1)
 
         #self.__motor_shoulder.weak_turn(80, 10)
 
@@ -209,7 +227,7 @@ class Earl:
                 self.__motor_shoulder.turn(
                     power,
                     angle,
-                    stop_turn=self.bumper(
+                    stop_turn=Earl.bumper(
                         self.__touch_shoulder,
                         time.time(),
                         self.__motor_shoulder.get_tacho().rotation_count,
@@ -231,7 +249,7 @@ class Earl:
                 self.__motor_elbow.turn(
                     power,
                     angle,
-                    stop_turn=self.bumper(
+                    stop_turn=Earl.bumper(
                         self.__touch_elbow,
                         time.time(),
                         self.__motor_elbow.get_tacho().rotation_count,
@@ -239,8 +257,10 @@ class Earl:
                         tar_dis
                     )
                 )
-        sleep(1)
+        # print("paused here?")
+        sleep(0.1)
         self.print_status()
+        # print("paused herere?")
         #self.__book_keeper.print_log(
         #    f"state after turning: motor0 on {self.__motor_shoulder.get_tacho()}, motor1 on {self.__motor_elbow.get_tacho()}")
 
