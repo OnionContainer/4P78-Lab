@@ -31,7 +31,8 @@ class CoordinateDrawer:
             "quit": self.cmd_quit,
             "seg": self.seg_to,
             "sync": self.cmd_sync,
-            "esc": self.cmd_esc
+            "esc": self.cmd_esc,
+            "rotrs": self.cmd_rotate_real_seg,
         }
 
         self.__earl = Earl()
@@ -82,6 +83,20 @@ class CoordinateDrawer:
 
     def cmd_home(self):
         self.__earl.home()
+
+        pass
+
+    def cmd_rotate_real_seg(self, power="64", degree="5", motor="0", weak="0"):
+        try:
+            p = int(power)
+            d = int(degree)
+            m = int(motor)
+            w = True if int(weak) == 1 else False
+        except ValueError as e:
+            print(e)
+            return
+
+        self.__earl.segment_turn(p,d,m,w)
 
         pass
 

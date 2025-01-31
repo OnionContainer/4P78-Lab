@@ -16,6 +16,17 @@ should be something like RealArm or NxtWrap but anyway.
 """
 class Earl:
 
+    def start_recording(self):
+        self.__turning_start_time = time.time()
+        self.__turning_start_angle = self.__motor_shoulder.get_tacho().rotation_count
+        pass
+
+    def get_motor_degree(self, motor:int)->float:
+        if motor == 0:
+            return self.__motor_shoulder.get_tacho().rotation_count
+        else:
+            return self.__motor_elbow.get_tacho().rotation_count
+
     def __init__(self):
         self.__brick = None
         self.__motor_shoulder = None
@@ -23,6 +34,9 @@ class Earl:
         self.__touch_shoulder = None
         self.__touch_elbow = None
         self.__init_success = False
+
+        self.__turning_start_time = None
+        self.__turning_start_angle = None
 
         trial = 0
         with open("config", "r+") as file:
@@ -38,10 +52,21 @@ class Earl:
         #self.__book_keeper.print_log("just to make sure it is useful")
 
     @staticmethod
-    def bumper(sensor):
+    def bumper(sensor, init_time, init_deg, get_deg, tar_dis):
+
+        t = init_time
+        d = init_deg
+        g = get_deg
+        tar = tar_dis
+
         def bumpy():
-            
             while not sensor.get_sample():
+                if time.time() - t > 2:
+                    print("bumpy return True due to timeout")
+                    return True
+                if abs(g() - d) > tar:
+                    print("bumpy return True due to angle reached")
+                    return True
                 pass
             return True
         return bumpy
@@ -80,6 +105,9 @@ class Earl:
             return
         self.__motor_shoulder.turn(-15,360,stop_turn=self.bumper(self.__touch_shoulder))
         self.__motor_elbow.turn(15,360,stop_turn=self.bumper(self.__touch_elbow))
+        self.__motor_shoulder.reset_position(False)
+        self.__motor_elbow.reset_position(False)
+        self.print_status()
         # self.cleanup()
 
     def preset_turn(self, index:int):
@@ -113,6 +141,27 @@ class Earl:
     def print_status(self):
         print(f"shoulder: {self.__motor_shoulder.get_tacho()} elbow: {self.__motor_elbow.get_tacho()}")
         
+    def segment_turn(self, power:int, angle:int, motor:int, weak = False):
+        target_deg = self.get_motor_degree(motor) + angle
+        angle = 1 if angle > 0 else -1
+        while True:
+            self.turn(power, angle, motor, weak)
+            #this should be some validated good parameter
+            #angle is +-1 unchanged. adjust weak and power
+
+            sleep(1)
+            deg = self.get_motor_degree(motor)
+            if angle > 0 and deg >= target_deg:
+                print("segment turns end")
+                break
+            elif angle < 0 and deg <= target_deg:
+                print("segment turns end")
+                break
+            else:
+                print("segment turn occur")
+                continue
+
+
 
     def turn(self, power:int, angle:int, motor:int, weak = False):
 
@@ -125,6 +174,19 @@ class Earl:
         if angle < 0:
             angle = -angle
             power = -power
+
+        tar_dis = abs(angle)
+        gett = None
+
+        def g1():
+            return self.__motor_shoulder.get_tacho().rotation_count
+        def g2():
+            return self.__motor_elbow.get_tacho().rotation_count
+
+        if motor == 0:
+            gett = g1
+        else:
+            gett = g2
 
         #self.__book_keeper.print_log(f"state before turning: motor0 on {self.__motor_shoulder.get_tacho()}, motor1 on {self.__motor_elbow.get_tacho()}")
         #log = f"received command: {"weak" if weak else ""} turn motor {motor} by {angle} degrees with power {power}"
@@ -147,7 +209,13 @@ class Earl:
                 self.__motor_shoulder.turn(
                     power,
                     angle,
-                    stop_turn=self.bumper(self.__touch_shoulder)
+                    stop_turn=self.bumper(
+                        self.__touch_shoulder,
+                        time.time(),
+                        self.__motor_shoulder.get_tacho().rotation_count,
+                        gett,
+                        tar_dis
+                    )
                 )
         else:
             if weak:
@@ -162,9 +230,14 @@ class Earl:
                 
                 self.__motor_elbow.turn(
                     power,
-
                     angle,
-                    stop_turn=self.bumper(self.__touch_elbow)
+                    stop_turn=self.bumper(
+                        self.__touch_elbow,
+                        time.time(),
+                        self.__motor_elbow.get_tacho().rotation_count,
+                        gett,
+                        tar_dis
+                    )
                 )
         sleep(1)
         self.print_status()
