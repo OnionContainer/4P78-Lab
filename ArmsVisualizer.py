@@ -68,6 +68,21 @@ class CoordinateDrawer:
 
         }
 
+
+        self.color_result = "g"
+        self.shape_result = "t"
+
+        self.__earl = Earl()
+        self.__earl.prep()
+
+        def butt()->bool:
+            print("button pressed")
+            return True
+
+        button = tk.Button(self.window, text="Praise the Omnissiah", command=butt)
+        button.pack(pady=0)  # 使用pack布局并添加一些上下内边距
+
+
         self.__earl = Earl()
         self.__earl.prep()
 
@@ -288,6 +303,21 @@ class CoordinateDrawer:
         # neww_point = (float(new_point[0]), float(new_point[1]))
         # self.sign_points([neww_point])
         # self.sign_line((0.0, 0.0), (neww_point[0], neww_point[1]))
+
+
+        self.window.clear_canvas("communication")
+        self.window.sign_point(
+            (-80.0, -80.0),
+            "communication",
+            f"shape detected: {self.shape_result}",
+            (0,20)
+        )
+        self.window.sign_point(
+            (-80.0, -120.0),
+            "communication",
+            f"color detected: {self.color_result}",
+            (0, 20)
+        )
 
         if self.__targetArm is not None:
             self.__targetArm.update()
