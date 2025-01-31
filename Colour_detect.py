@@ -18,8 +18,18 @@ webcam_video = cv2.VideoCapture(0)
 
 def update_color(callback):
     success, video = webcam_video.read()
+    height, width = video.shape[:2]
+    square = 300
 
-    img = cv2.cvtColor(video, cv2.COLOR_BGR2HSV)
+    cells_y = 100
+    cells_x = 100
+    grid_width = width // 2
+    grid_height = height // 2
+    topLeftX = grid_width - square // 2
+    topLeftY = grid_height - square // 2
+    cropped_vid = video[topLeftY :topLeftY  + square, topLeftX :topLeftX  + square]
+
+    img = cv2.cvtColor(cropped_vid , cv2.COLOR_BGR2HSV)
 
     maskOrange = cv2.inRange(img, lowerOrange, upperOrange)
     maskGreen = cv2.inRange(img, lowerGreen, upperGreen)
@@ -30,7 +40,7 @@ def update_color(callback):
     contoursGrey, _ = cv2.findContours(maskGrey, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Get the width and height of the frame
-    height, width = video.shape[:2]
+    
 
 
     cells_y = 100
@@ -90,7 +100,7 @@ def update_color(callback):
             callback(i)
 
 
-    # cv2.imshow("Color Labels", video)
+    # cv2.imshow("Color Labels", cropped_vid)
     # cv2.waitKey(1)
     # print(f"color detect updating: {count_colors}")
 

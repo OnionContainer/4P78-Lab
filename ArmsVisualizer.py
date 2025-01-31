@@ -147,7 +147,7 @@ class CoordinateDrawer:
         # self.__earl.segment_turn(40, d-current, m, False)
 
         if m == 2:#power swing!
-            self.cmd_rotate_real("120", deg, "1","0")
+            self.cmd_rotate_real("90", deg, "1","0")
             self.cmd_home()
             return
 
