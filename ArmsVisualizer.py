@@ -43,6 +43,11 @@ rot_plans = [
 ]
 
 class CoordinateDrawer:
+
+    def clear_color_shape_count(self):
+        self.color_count = [0,0,0]
+        self.shape_count = [0,0,0]
+
     def __init__(self):
         # Initialize the main Tkinter window
         self.window = MyTk()
@@ -72,9 +77,12 @@ class CoordinateDrawer:
 
         }
 
-
+        self.mission_end_time = time.time()
         self.color_result = 0
-        self.shape_result = "t"
+        self.shape_result = 0
+
+        self.color_count = [0,0,0]
+        self.shape_count = [0,0,0]
 
         self.__earl = Earl()
         self.__earl.prep()
@@ -85,10 +93,6 @@ class CoordinateDrawer:
 
         button = tk.Button(self.window, text="Praise the Omnissiah", command=butt)
         button.pack(pady=0)  # 使用pack布局并添加一些上下内边距
-
-
-        self.__earl = Earl()
-        self.__earl.prep()
 
 
 
@@ -121,6 +125,8 @@ class CoordinateDrawer:
             print("Command parsing problem")
             print(e)
             return
+
+        self.cmd_esc()
 
         for plan in rot_plans[i]:
             self.cmd_goal(plan[0], plan[1])
@@ -337,6 +343,82 @@ class CoordinateDrawer:
             f"color detected: {self.color_result}",
             (0, 20)
         )
+
+        """
+        auto decision making
+        """
+
+        #do nothing in a period of time
+        delta_time = time.time() - self.mission_end_time
+        if delta_time < 5:
+            self.window.clear_canvas("time_dots")
+            self.window.sign_point(
+                (-200.0, -200.0),
+                "time_dots",
+                f"idle: {delta_time:.1f}",
+                (0, 20)
+            )
+
+        #collect data for 5 seconds
+        if 5 < delta_time < 10:
+            self.window.clear_canvas("time_dots")
+            self.window.sign_point(
+                (-150.0, -200.0),
+                "time_dots",
+                f"analyzing... {delta_time:.1f}",
+                (0, 20)
+            )
+            self.window.sign_point(
+                (-150.0, -240.0),
+                "time_dots",
+                f"color(Org, Gre, Gry): {self.color_count}",
+                (0, 20)
+            )
+            self.window.sign_point(
+                (-150.0, -280.0),
+                "time_dots",
+                f"shape(T, Z, L): {self.shape_count}",
+                (0, 20)
+            )
+            if not self.color_result > 10:
+                self.color_count[self.color_result] += 1
+            if not self.shape_result > 10:
+                self.shape_count[self.shape_result] += 1
+            # print("=", end="")
+
+        if delta_time > 10:
+            max_color = (-1, 0)#none color, 0 times
+            max_shape = (-1, 0)#none shape, 0 times
+            for i in range(3):
+                if self.color_count[i] > max_color[1]:
+                    max_color = (i,self.color_count[i])
+                if self.shape_count[i] > max_shape[1]:
+                    max_shape = (i,self.shape_count[i])
+
+            self.window.clear_canvas("time_dots")
+            self.window.sign_point(
+                (-300.0, -200.0),
+                "time_dots",
+                f"roll the dice!\nwindows not responding, thread blocked\ncolor:{self.color_count}({max_color[0]})\nshape:{self.shape_count}({max_shape[0]})",
+                (130, 0)
+            )
+
+            if max_color[0] == -1:
+                print("no color detected, restart")
+            if max_shape[0] == -1:
+                print("no shape detected, restart")
+            else:
+                print(f"result: color: {max_color[0]}, shape: {max_shape[0]}")
+
+                self.cmd_series_rotr(str(max_color[0]))
+
+                self.clear_color_shape_count()
+                self.mission_end_time = time.time()
+
+
+
+
+        #make the decision and clear data
 
         if self.__targetArm is not None:
             self.__targetArm.update()

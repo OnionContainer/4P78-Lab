@@ -92,7 +92,7 @@ def update_color(callback):
 
     # cv2.imshow("Color Labels", video)
     # cv2.waitKey(1)
-    print(f"color detect updating: {count_colors}")
+    # print(f"color detect updating: {count_colors}")
 
 
     # if cv2.waitKey(1) & 0xFF == ord('q'):
