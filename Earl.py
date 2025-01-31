@@ -145,9 +145,9 @@ class Earl:
         print("escape from zero")
         self.print_status()
         sleep(1)
-        self.__motor_shoulder.weak_turn(100,5)
+        self.__motor_shoulder.weak_turn(80,5)
         sleep(1)
-        self.__motor_elbow.weak_turn(-100,5)
+        self.__motor_elbow.weak_turn(-64,5)
         sleep(1)
         self.print_status()
 

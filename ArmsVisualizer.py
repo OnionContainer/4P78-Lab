@@ -9,21 +9,30 @@ import sympy
 
 rot_plans = [
     [
-        (220,1),
-        (155,0),
-        (-175,1),
-        (90,1),
+        (-250,1),
+        (120,0),
+        (175,1),
+        (-90,1),
         (-15,0),
-        (-100,2)#power swing!
+        (100,2)#power swing!
     ],
     [
         (155,0),
-        (200,2)#power swing!
+        (-200,2)#power swing!
     ],
     [
-        (220,1),
-        (125,0),
-        (-180,2)#power swing!
+        (-240,1),
+        (115,0),
+        (180,2)#power swing!
+    ],
+    [
+        (145,0),
+        (-130,1),
+        (110,1),
+        (-100,0),
+        (-220,1),
+        (100,0),
+        (180,2)
     ]
 
 
@@ -94,8 +103,8 @@ class CoordinateDrawer:
             print(e)
             return
 
-        for plan in rot_plans:
-            self.cmd_goal(*plan[i])
+        for plan in rot_plans[i]:
+            self.cmd_goal(plan[0], plan[1])
 
 
     def cmd_goal(self, deg = "0", motor = "0"):
@@ -113,7 +122,7 @@ class CoordinateDrawer:
         # self.__earl.segment_turn(40, d-current, m, False)
 
         if m == 2:#power swing!
-            self.cmd_rotate_real("80", deg, "1","0")
+            self.cmd_rotate_real("120", deg, "1","0")
             self.cmd_home()
             return
 
