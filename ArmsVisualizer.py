@@ -8,8 +8,7 @@ from MyTk import MyTk
 import sympy
 
 import Colour_detect
-
-
+from simple_wav_player import PlayerPlayer
 
 rot_plans = [
     [
@@ -84,8 +83,13 @@ class CoordinateDrawer:
         self.color_count = [0,0,0]
         self.shape_count = [0,0,0]
 
+        self.player = PlayerPlayer()
+        self.player.playing = False
+        self.player.start()
+
         self.__earl = Earl()
         self.__earl.prep()
+
 
         def butt()->bool:
             print("button pressed")
@@ -93,6 +97,7 @@ class CoordinateDrawer:
 
         button = tk.Button(self.window, text="Praise the Omnissiah", command=butt)
         button.pack(pady=0)  # 使用pack布局并添加一些上下内边距
+
 
 
 
@@ -360,7 +365,9 @@ class CoordinateDrawer:
             )
 
         #collect data for 5 seconds
-        if 5 < delta_time < 10:
+        if 5 < delta_time < 15:
+            if not self.player.playing:
+                self.player.playing = True
             self.window.clear_canvas("time_dots")
             self.window.sign_point(
                 (-150.0, -200.0),
@@ -386,7 +393,9 @@ class CoordinateDrawer:
                 self.shape_count[self.shape_result] += 1
             # print("=", end="")
 
-        if delta_time > 10:
+        if delta_time > 15:
+            if self.player.playing:
+                self.player.playing = False
             max_color = (-1, 0)#none color, 0 times
             max_shape = (-1, 0)#none shape, 0 times
             for i in range(3):
@@ -405,13 +414,16 @@ class CoordinateDrawer:
 
             if max_color[0] == -1:
                 print("no color detected, restart")
+                self.clear_color_shape_count()
+                self.mission_end_time = time.time()
             if max_shape[0] == -1:
                 print("no shape detected, restart")
+                self.clear_color_shape_count()
+                self.mission_end_time = time.time()
             else:
                 print(f"result: color: {max_color[0]}, shape: {max_shape[0]}")
 
                 self.cmd_series_rotr(str(max_color[0]))
-
                 self.clear_color_shape_count()
                 self.mission_end_time = time.time()
 
