@@ -12,11 +12,11 @@ upperGreen = np.array([125, 255, 100])
 lowerGrey = np.array([100, 10, 50])
 upperGrey = np.array([150, 50, 100])
 
-webcam_video = cv2.VideoCapture(0)
+# webcam_video = cv2.VideoCapture(0)
 
 
 
-def update_color(callback):
+def update_color(callback, webcam_video):
     success, video = webcam_video.read()
     height, width = video.shape[:2]
     square = 300
@@ -108,7 +108,7 @@ def update_color(callback):
     # if cv2.waitKey(1) & 0xFF == ord('q'):
     #     break
 
-def quit_color():
-    webcam_video.release()
-    cv2.destroyAllWindows()
+# def quit_color():
+#     webcam_video.release()
+#     cv2.destroyAllWindows()
 

@@ -2,12 +2,17 @@ from __future__ import annotations
 import time
 import tkinter as tk
 from typing import List, Tuple
+
+import cv2
+
 import VirtualArms
 from Earl import Earl
 from MyTk import MyTk
 import sympy
 
 import Colour_detect
+import RT_Shape_prediction
+
 from simple_wav_player import PlayerPlayer
 
 rot_plans = [
@@ -75,6 +80,8 @@ class CoordinateDrawer:
             "plan": self.cmd_series_rotr,
 
         }
+
+        self.cam_boss = cv2.VideoCapture(0)
 
         self.mission_end_time = time.time()
         self.color_result = 0
@@ -325,6 +332,20 @@ class CoordinateDrawer:
 
         return to_call
 
+    def shape_callback(self):
+        """
+
+        :param i: reported color index
+        0 means orange
+        1 means green
+        2 means gray
+        :return:
+        """
+        def to_call(i):
+            self.shape_result = i
+
+        return to_call
+
     def dynamic_update(self):
         """Simulate dynamically adding new points."""
         import random
@@ -333,7 +354,8 @@ class CoordinateDrawer:
         # self.sign_points([neww_point])
         # self.sign_line((0.0, 0.0), (neww_point[0], neww_point[1]))
 
-        Colour_detect.update_color(self.color_callback())
+        Colour_detect.update_color(self.color_callback(), self.cam_boss)
+        RT_Shape_prediction.shape_update(self.shape_callback(), self.cam_boss)
 
         self.window.clear_canvas("communication")
         self.window.sign_point(
@@ -423,7 +445,17 @@ class CoordinateDrawer:
             else:
                 print(f"result: color: {max_color[0]}, shape: {max_shape[0]}")
 
-                self.cmd_series_rotr(str(max_color[0]))
+                c = max_color[0]
+                s = max_shape[0]
+
+                if (c == 0 and s == 0) or (c == 1 and s == 1):
+                    pass
+                elif (c == 1 and s == 0) or (c == 0 and s == 1):
+                    pass
+                else:
+                    pass
+
+                # self.cmd_series_rotr(str(max_color[0]))
                 self.clear_color_shape_count()
                 self.mission_end_time = time.time()
 
