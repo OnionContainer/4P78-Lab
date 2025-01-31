@@ -40,6 +40,7 @@ class Earl:
     @staticmethod
     def bumper(sensor):
         def bumpy():
+            
             while not sensor.get_sample():
                 pass
             return True
@@ -92,6 +93,16 @@ class Earl:
 
         pass
 
+    def excape(self):
+        print("escape from zero")
+        self.print_status()
+        sleep(1)
+        self.__motor_shoulder.weak_turn(80,1)
+        sleep(1)
+        self.__motor_elbow.weak_turn(-80,1)
+        sleep(1)
+        self.print_status()
+
     def quit(self):
         if not self.__init_success:
             print("Earl not initialized")
@@ -99,9 +110,14 @@ class Earl:
         self.home()
         self.cleanup()
 
+    def print_status(self):
+        print(f"shoulder: {self.__motor_shoulder.get_tacho()} elbow: {self.__motor_elbow.get_tacho()}")
+        
+
     def turn(self, power:int, angle:int, motor:int, weak = False):
 
         print(f"Earl: turn {angle} with {power} on {motor} motor using {weak} weak mode")
+        
 
         if not self.__init_success:
             print("Earl not initialized")
@@ -114,9 +130,10 @@ class Earl:
         #log = f"received command: {"weak" if weak else ""} turn motor {motor} by {angle} degrees with power {power}"
         #self.__book_keeper.print_log(log)
 
+        self.print_status()
         sleep(1)
 
-        self.__motor_shoulder.weak_turn(80, 10)
+        #self.__motor_shoulder.weak_turn(80, 10)
 
         if motor == 0:
             if weak:
@@ -125,12 +142,13 @@ class Earl:
                     power,
                     angle
                 )
-            print("turn shoulder")
-            self.__motor_shoulder.turn(
-                power,
-                angle,
-                stop_turn=self.bumper(self.__touch_shoulder)
-            )
+            else:
+                print("turn shoulder")
+                self.__motor_shoulder.turn(
+                    power,
+                    angle,
+                    stop_turn=self.bumper(self.__touch_shoulder)
+                )
         else:
             if weak:
                 print("weak turn elbow")
@@ -138,14 +156,18 @@ class Earl:
                     power,
                     angle
                 )
-            print("turn elbow")
-            self.__motor_elbow.turn(
-                power,
 
-                angle,
-                stop_turn=self.bumper(self.__touch_elbow)
-            )
+            else: 
+                print("turn elbow")
+                
+                self.__motor_elbow.turn(
+                    power,
+
+                    angle,
+                    stop_turn=self.bumper(self.__touch_elbow)
+                )
         sleep(1)
+        self.print_status()
         #self.__book_keeper.print_log(
         #    f"state after turning: motor0 on {self.__motor_shoulder.get_tacho()}, motor1 on {self.__motor_elbow.get_tacho()}")
 

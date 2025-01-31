@@ -31,6 +31,7 @@ class CoordinateDrawer:
             "quit": self.cmd_quit,
             "seg": self.seg_to,
             "sync": self.cmd_sync,
+            "esc": self.cmd_esc
         }
 
         self.__earl = Earl()
@@ -59,6 +60,9 @@ class CoordinateDrawer:
             print("Turning non existing motor?\n", "\n---···---")
         except ValueError as e:
             print("Type parsing failed. Watch your args.\n", e, "\n---···---")
+
+    def cmd_esc(self):
+        self.__earl.excape()
 
     def cmd_pre(self, index:str = "0"):
         try:
