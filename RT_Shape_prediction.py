@@ -1,4 +1,6 @@
 import cv2
+from sympy.codegen import While
+
 # import keras
 # Load trained model
 model = keras.models.load_model("tetris_shape_classifier.h5")
@@ -43,6 +45,14 @@ def shape_update(shape_callback, cap):
     # # Press 'q' to exit
     # if cv2.waitKey(1) & 0xFF == ord('q'):
     #     break
+
+def fake_callback(report):
+    print(f"fake callback: {report}")
+
+
+if __name__ == "__main__":
+    while True:
+        shape_update(fake_callback, cv2.VideoCapture(0))
 
 # cap.release()
 # cv2.destroyAllWindows()
